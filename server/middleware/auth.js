@@ -1,49 +1,41 @@
 const jwt = require('jsonwebtoken');
 
+const AppError = require('../utils/AppError');
+
 const authMiddleware = (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: 'Server misconfiguration' });
-    }
-
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      return res.status(401).json({ message: 'Invalid or expired token' });
-    }
-
-    const { id, role } = decoded || {};
-    if (!id || !role) {
-      return res.status(401).json({ message: 'Invalid or expired token' });
-    }
-
-    req.user = { id, role };
-    return next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next(new AppError('Not authorized', 401));
   }
+
+  const token = authHeader.split(' ')[1];
+  if (!token) {
+    return next(new AppError('Not authorized', 401));
+  }
+
+  if (!process.env.JWT_SECRET) {
+    return next(new AppError('Server error', 500));
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const { id, role } = decoded || {};
+  if (!id || !role) {
+    return next(new AppError('Not authorized', 401));
+  }
+
+  req.user = { id, role };
+  return next();
 };
 
 const requireRole = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user || !req.user.role) {
-      return res.status(401).json({ message: 'No token provided' });
+      return next(new AppError('Not authorized', 401));
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden: insufficient permissions' });
+      return next(new AppError('Access denied', 403));
     }
 
     return next();
