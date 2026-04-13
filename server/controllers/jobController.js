@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const Job = require('../models/Job');
 const AppError = require('../utils/AppError');
 const asyncHandler = require('../utils/asyncHandler');
+const { runAlertsForNewJob } = require('../services/searchAlertService');
+
+const escapeRegex = (value) => {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
 
 const createJob = asyncHandler(async (req, res) => {
   const { title, description, company, location, salary } = req.body;
@@ -25,11 +30,18 @@ const createJob = asyncHandler(async (req, res) => {
     createdBy,
   });
 
+  try {
+    await runAlertsForNewJob(job);
+  } catch (err) {
+    // Do not block job creation if alerts fail
+  }
+
   return res.status(201).json({ job });
 });
 
 const getAllJobs = asyncHandler(async (req, res) => {
   const {
+    search,
     keyword,
     location,
     company,
@@ -42,24 +54,29 @@ const getAllJobs = asyncHandler(async (req, res) => {
 
   const filter = {};
 
-  if (keyword) {
+  const searchValue = search || keyword;
+
+  if (searchValue) {
+    const safeSearch = escapeRegex(searchValue);
     filter.$or = [
-      { title: { $regex: keyword, $options: 'i' } },
-      { description: { $regex: keyword, $options: 'i' } },
-      { company: { $regex: keyword, $options: 'i' } },
+      { title: { $regex: safeSearch, $options: 'i' } },
+      { description: { $regex: safeSearch, $options: 'i' } },
     ];
   }
 
   if (location) {
-    filter.location = { $regex: location, $options: 'i' };
+    const safeLocation = escapeRegex(location);
+    filter.location = { $regex: safeLocation, $options: 'i' };
   }
 
   if (company) {
-    filter.company = { $regex: company, $options: 'i' };
+    const safeCompany = escapeRegex(company);
+    filter.company = { $regex: safeCompany, $options: 'i' };
   }
 
   const minSalaryNum = Number(minSalary);
   const maxSalaryNum = Number(maxSalary);
+
   if (!Number.isNaN(minSalaryNum) || !Number.isNaN(maxSalaryNum)) {
     filter.salary = {};
     if (!Number.isNaN(minSalaryNum)) {
@@ -75,11 +92,14 @@ const getAllJobs = asyncHandler(async (req, res) => {
     oldest: { createdAt: 1 },
     salary_asc: { salary: 1 },
     salary_desc: { salary: -1 },
+    salary: { salary: -1 },
+    title: { title: 1 },
   };
   const sortOption = sortMap[sort] || sortMap.latest;
 
   const pageNum = Math.max(1, Number(page) || 1);
-  const limitNum = Math.max(1, Number(limit) || 10);
+  const parsedLimit = Number(limit);
+  const limitNum = Math.min(50, Math.max(1, Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10));
   const skip = (pageNum - 1) * limitNum;
 
   const totalJobs = await Job.countDocuments(filter);

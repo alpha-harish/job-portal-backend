@@ -25,9 +25,13 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['seeker', 'recruiter'],
+      enum: ['seeker', 'recruiter', 'admin'],
       default: 'seeker',
       required: true,
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
   },
   {

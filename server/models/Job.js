@@ -37,6 +37,13 @@ const jobSchema = new mongoose.Schema(
   }
 );
 
+jobSchema.index({ title: 1 });
+jobSchema.index({ company: 1 });
+jobSchema.index({ location: 1 });
+jobSchema.index({ salary: 1 });
+jobSchema.index({ createdAt: -1 });
+jobSchema.index({ title: 1, location: 1 });
+
 const Job = mongoose.model('Job', jobSchema);
 
 module.exports = Job;

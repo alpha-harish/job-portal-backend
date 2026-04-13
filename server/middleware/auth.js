@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const AppError = require('../utils/AppError');
+const User = require('../models/User');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -22,6 +23,15 @@ const authMiddleware = (req, res, next) => {
   const { id, role } = decoded || {};
   if (!id || !role) {
     return next(new AppError('Not authorized', 401));
+  }
+
+  const user = await User.findById(id).select('isBlocked').lean();
+  if (!user) {
+    return next(new AppError('Not authorized', 401));
+  }
+
+  if (user.isBlocked) {
+    return next(new AppError('Account blocked', 403));
   }
 
   req.user = { id, role };

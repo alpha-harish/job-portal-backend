@@ -12,6 +12,7 @@ const bookmarkRoutes = require('./routes/bookmarkRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const healthRoutes = require('./routes/healthRoutes');
+const savedSearchRoutes = require('./routes/savedSearchRoutes');
 const AppError = require('./utils/AppError');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -33,6 +34,7 @@ app.use('/api/bookmarks', bookmarkRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/saved-searches', savedSearchRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError('Route not found', 404));

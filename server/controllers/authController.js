@@ -51,6 +51,10 @@ const login = asyncHandler(async (req, res) => {
     throw new AppError('Invalid credentials', 401);
   }
 
+  if (user.isBlocked) {
+    throw new AppError('Account blocked', 403);
+  }
+
   const token = generateToken({ id: user._id, role: user.role });
 
   return res.status(200).json({
