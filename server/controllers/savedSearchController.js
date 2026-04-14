@@ -37,6 +37,7 @@ const getSavedSearches = asyncHandler(async (req, res) => {
   const userId = req.user && req.user.id;
 
   const searches = await SavedSearch.find({ user: userId })
+    .select('search location company minSalary maxSalary lastCheckedAt createdAt')
     .sort({ createdAt: -1 })
     .lean();
 

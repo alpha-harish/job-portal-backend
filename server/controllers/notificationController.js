@@ -8,9 +8,11 @@ const getNotifications = asyncHandler(async (req, res) => {
   const userId = req.user && req.user.id;
 
   const notifications = await Notification.find({ user: userId })
+    .select('type message job application isRead createdAt')
     .sort({ createdAt: -1 })
     .populate('job', 'title company location salary')
-    .populate('application', 'status createdAt');
+    .populate('application', 'status createdAt')
+    .lean();
 
   return res.status(200).json({ notifications });
 });

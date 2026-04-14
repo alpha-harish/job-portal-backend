@@ -184,6 +184,7 @@ const getAllJobs = asyncHandler(async (req, res) => {
   }
 
   const jobs = await Job.find({})
+    .select('title company location salary createdAt createdBy')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limitNum)

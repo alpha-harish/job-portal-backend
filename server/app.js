@@ -13,6 +13,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 const savedSearchRoutes = require('./routes/savedSearchRoutes');
+const { adminAnalyticsRoutes, recruiterAnalyticsRoutes } = require('./routes/analyticsRoutes');
 const AppError = require('./utils/AppError');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -23,11 +24,18 @@ app.use(logger);
 app.use(rateLimiter);
 
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: Date.now(),
+    env: process.env.NODE_ENV,
+  });
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminAnalyticsRoutes);
+app.use('/api/recruiter', recruiterAnalyticsRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);

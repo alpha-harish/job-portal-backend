@@ -92,8 +92,10 @@ const getMyApplications = asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
   const applications = await Application.find({ user: userId })
+    .select('job status createdAt')
     .sort({ createdAt: -1 })
-    .populate('job', 'title company location');
+    .populate('job', 'title company location salary')
+    .lean();
 
   return res.status(200).json({ applications });
 });
@@ -115,7 +117,8 @@ const getApplicantsForJob = asyncHandler(async (req, res) => {
 
   const applications = await Application.find({ job: jobId })
     .sort({ createdAt: -1 })
-    .populate('user', 'name email');
+    .populate('user', 'name email')
+    .lean();
 
   return res.status(200).json({ applications });
 });

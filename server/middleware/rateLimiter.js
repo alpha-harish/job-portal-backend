@@ -1,8 +1,11 @@
 const rateLimit = require('express-rate-limit');
 
+const nodeEnv = process.env.NODE_ENV || 'development';
+const limit = nodeEnv === 'production' ? 1000 : 100;
+
 const rateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 100,
+  limit,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {

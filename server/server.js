@@ -3,11 +3,15 @@ dns.setServers(['1.1.1.1', '8.8.8.8']);
 
 require('dotenv').config();
 
+require('./config/validateEnv');
+
+const config = require('./config/config');
+
 const app = require('./app');
 const connectDB = require('./config/db');
 const mongoose = require('mongoose');
 
-const PORT = process.env.PORT || 5000;
+const PORT = config.port;
 
 let server;
 

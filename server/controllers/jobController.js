@@ -115,10 +115,11 @@ const getAllJobs = asyncHandler(async (req, res) => {
   }
 
   const jobs = await Job.find(filter)
+    .select('title company location salary createdAt')
     .sort(sortOption)
     .skip(skip)
     .limit(limitNum)
-    .populate('createdBy', 'name email');
+    .lean();
 
   return res.status(200).json({
     jobs,

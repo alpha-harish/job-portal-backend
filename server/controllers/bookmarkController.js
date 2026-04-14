@@ -68,7 +68,8 @@ const getMyBookmarks = asyncHandler(async (req, res) => {
 
   const bookmarks = await Bookmark.find({ user: userId })
     .sort({ createdAt: -1 })
-    .populate('job', 'title company location salary');
+    .populate('job', 'title company location salary createdAt')
+    .lean();
 
   return res.status(200).json({ bookmarks });
 });
