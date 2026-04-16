@@ -14,6 +14,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 const savedSearchRoutes = require('./routes/savedSearchRoutes');
 const { adminAnalyticsRoutes, recruiterAnalyticsRoutes } = require('./routes/analyticsRoutes');
+const aiRoutes = require('./routes/ai.routes');
 const AppError = require('./utils/AppError');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -37,12 +38,13 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/admin', adminAnalyticsRoutes);
 app.use('/api/recruiter', recruiterAnalyticsRoutes);
 app.use('/api/jobs', jobRoutes);
-app.use('/api/applications', applicationRoutes);
+app.use('/api/application', applicationRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/saved-searches', savedSearchRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError('Route not found', 404));

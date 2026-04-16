@@ -26,6 +26,28 @@ const applicationSchema = new mongoose.Schema(
         type: String,
         required: false,
       },
+      aiAnalysis: {
+        score: {
+          type: Number,
+          required: false,
+        },
+        skills: {
+          type: [String],
+          required: false,
+        },
+        suggestions: {
+          type: [String],
+          required: false,
+        },
+        summary: {
+          type: String,
+          required: false,
+        },
+        analyzedAt: {
+          type: Date,
+          required: false,
+        },
+      },
     },
   },
   {

@@ -24,7 +24,9 @@ router.post(
   },
   applyToJob
 );
+
 router.get('/my', authMiddleware, requireRole('seeker'), getMyApplications);
 router.get('/job/:jobId', authMiddleware, requireRole('recruiter'), getApplicantsForJob);
 router.put('/:id', authMiddleware, requireRole('recruiter'), updateApplicationStatus);
+
 module.exports = router;
